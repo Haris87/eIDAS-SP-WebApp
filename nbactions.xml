@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>debug</actionName>
+            <packagings>
+                <packaging>jar</packaging>
+            </packagings>
+            <goals>
+                <goal>process-classes</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
+            </goals>
+            <properties>
+                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath gr.uagean.loginWebApp.LoginWebAppApplication</exec.args>
+                <exec.executable>java</exec.executable>
+                <jpda.listen>true</jpda.listen>
+                <Env.EIDAS_PROPERTIES>CurrentFamilyName,CurrentGivenName,DateOfBirth,PersonIdentifier</Env.EIDAS_PROPERTIES>
+                <Env.SP_COUNTRY>GR</Env.SP_COUNTRY>
+                <Env.SP_FAIL_PAGE>https://www.google.com</Env.SP_FAIL_PAGE>
+                <Env.SP_SUCCESS_PAGE>https://www.google.gr</Env.SP_SUCCESS_PAGE>
+                <Env.METADATA_URL>http://localhost:8090/metadata</Env.METADATA_URL>
+                <Env.RETURN_URL>http://localhost:8090/login</Env.RETURN_URL>
+                <Env.EIDAS_NODE_URL>http://84.205.248.180/EidasNode/ServiceProvider/</Env.EIDAS_NODE_URL>
+                <Env.SP_BACKEND>http://www.google.com</Env.SP_BACKEND>
+                <Env.SP_METADATA_URL>http://138.68.103.237:8090/metadata</Env.SP_METADATA_URL>
+                <Env.SP_RETURN_URL>http://138.68.103.237:8090/eidasResponse</Env.SP_RETURN_URL>
+                <Env.SP_LOGO>img/app-logo.png</Env.SP_LOGO>
+            </properties>
+        </action>
+        <action>
+            <actionName>build-with-dependencies</actionName>
+            <reactor>also-make</reactor>
+            <packagings>
+                <packaging>*</packaging>
+            </packagings>
+            <goals>
+                <goal>install</goal>
+            </goals>
+            <properties>
+                <skipTests>true</skipTests>
+            </properties>
+        </action>
+    </actions>
