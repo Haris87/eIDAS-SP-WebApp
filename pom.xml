@@ -64,11 +64,13 @@
             <type>jar</type>
         </dependency>
         
-        <!-- end of local dep --> 
-        
-        
-        
-       
+        <!-- end of local dep -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.7.0</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 
     <build>

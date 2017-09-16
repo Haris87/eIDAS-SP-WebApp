@@ -5,6 +5,7 @@
  */
 package gr.uagean.loginWebApp.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.eidas.sp.SpAuthenticationRequestData;
 import eu.eidas.sp.SpAuthenticationResponseData;
 import eu.eidas.sp.SpEidasSamlTools;
@@ -15,10 +16,14 @@ import gr.uagean.loginWebApp.service.EncryptService;
 import gr.uagean.loginWebApp.service.MetadataService;
 import gr.uagean.loginWebApp.service.NetworkService;
 import gr.uagean.loginWebApp.service.TestEidasMetadataService;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.httpclient.NameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +61,7 @@ public class RestControllers {
 
     @Autowired
     private MetadataService metServ;
-    
+
     @Autowired
     private EncryptService encryptServ;
 
@@ -91,21 +96,20 @@ public class RestControllers {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
 
-   
     @RequestMapping(value = "/eidasResponse", method = {RequestMethod.POST, RequestMethod.GET})
-    public String eidasResponse(@RequestParam(value = "SAMLResponse", required = false) String samlResponse) {
+    public String eidasResponse(@RequestParam(value = "SAMLResponse", required = false) String samlResponse,
+            HttpServletResponse response) {
 
         String remoteAddress = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
                 .getRequest().getRemoteAddr();
 
 //        LOG.info("DATA" + samlResponse);
 //        LOG.info("remoteAddress" + remoteAddress);
-
         SpAuthenticationResponseData data = decryptServ.processResponse(samlResponse, remoteAddress);//SpEidasSamlTools.processResponse(samlResponse, remoteAddress);
 
         UUID token = UUID.randomUUID();
         LOG.info("token " + token);
-        
+
         ArrayList<String[]> pal = data.getAttributes();
         LOG.info("Reponse ID: " + data.getID());
         LOG.info("ReponseToID: " + data.getResponseToID());
@@ -125,8 +129,25 @@ public class RestControllers {
         urlParameters.add(new NameValuePair("token", token.toString()));
 
         try {
+            String access_token;
+            ObjectMapper mapper = new ObjectMapper();
+            LOG.info("FINAL DATA" + data.getResponseXML());
+            try {
+                access_token = Jwts.builder()
+                        .setSubject(mapper.writeValueAsString(data.getResponseXML()))
+                        .signWith(SignatureAlgorithm.HS256, "secret".getBytes("UTF-8"))
+                        .compact();
+                Cookie cookie = new Cookie("access_token", access_token);
+                cookie.setPath("/");
+                cookie.setMaxAge(30 * 60);
+                response.addCookie(cookie);
+
+            } catch (Exception e) {
+                LOG.info(e.getMessage());
+
+            }
+
             if (netServ.sendPostReqWithData(SP_BACKEND, urlParameters)) {
-                LOG.info("FINAL DATA" + data.getResponseXML());
                 return "redirect:" + SP_SUCCESS_PAGE + "?token=" + token;
             } else {
                 return "redirect:" + SP_FAIL_PAGE + "?token=" + token;
@@ -134,7 +155,8 @@ public class RestControllers {
 
         } catch (IOException ex) {
             LOG.error(ex.toString());
-            return "redirect:" + SP_FAIL_PAGE;
+//            return "redirect:" + SP_FAIL_PAGE;
+            return "redirect:" + SP_SUCCESS_PAGE + "?token=" + token;
         }
 
     }
