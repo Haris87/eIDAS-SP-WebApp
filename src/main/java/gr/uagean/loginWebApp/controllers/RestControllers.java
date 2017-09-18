@@ -16,11 +16,13 @@ import gr.uagean.loginWebApp.service.EncryptService;
 import gr.uagean.loginWebApp.service.MetadataService;
 import gr.uagean.loginWebApp.service.NetworkService;
 import gr.uagean.loginWebApp.service.TestEidasMetadataService;
+import gr.uagean.loginWebApp.utils.eIDASResponseParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -133,8 +135,9 @@ public class RestControllers {
             ObjectMapper mapper = new ObjectMapper();
             LOG.info("FINAL DATA" + data.getResponseXML());
             try {
+                Map<String,String> jsonMap = eIDASResponseParser.parse(data.getResponseXML());
                 access_token = Jwts.builder()
-                        .setSubject(mapper.writeValueAsString(data.getResponseXML()))
+                        .setSubject(mapper.writeValueAsString(jsonMap))
                         .signWith(SignatureAlgorithm.HS256, "secret".getBytes("UTF-8"))
                         .compact();
                 Cookie cookie = new Cookie("access_token", access_token);
