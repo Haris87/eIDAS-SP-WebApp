@@ -59,8 +59,8 @@
         <!-- LOCAL DEPENDENCIES (FROM LOCAL REPO) --> 
         <dependency>
             <groupId>gr.eidas</groupId>
-            <artifactId>connector</artifactId>
-            <version>1.3.6</version>
+            <artifactId>connector13</artifactId>
+            <version>1.0</version>
             <type>jar</type>
         </dependency>
         

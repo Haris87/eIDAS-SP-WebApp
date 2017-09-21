@@ -10,12 +10,8 @@ import eu.eidas.sp.SpAuthenticationRequestData;
 import eu.eidas.sp.SpAuthenticationResponseData;
 import eu.eidas.sp.SpEidasSamlTools;
 import eu.eidas.sp.metadata.GenerateMetadataAction;
-import gr.uagean.loginWebApp.service.EidasDecryptService;
 import gr.uagean.loginWebApp.service.EidasPropertiesService;
-import gr.uagean.loginWebApp.service.EncryptService;
-import gr.uagean.loginWebApp.service.MetadataService;
 import gr.uagean.loginWebApp.service.NetworkService;
-import gr.uagean.loginWebApp.service.TestEidasMetadataService;
 import gr.uagean.loginWebApp.utils.eIDASResponseParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -58,15 +54,6 @@ public class RestControllers {
     @Autowired
     private NetworkService netServ;
 
-    @Autowired
-    private EidasDecryptService decryptServ;
-
-    @Autowired
-    private MetadataService metServ;
-
-    @Autowired
-    private EncryptService encryptServ;
-
     private final static Logger LOG = LoggerFactory.getLogger(RestControllers.class);
 
     private final static String SP_BACKEND = System.getenv("SP_BACKEND");
@@ -77,9 +64,9 @@ public class RestControllers {
     @RequestMapping(value = "/metadata", method = {RequestMethod.POST, RequestMethod.GET}, produces = {"application/xml"})
     public @ResponseBody
     String metadata() {
-//        GenerateMetadataAction metaData = new GenerateMetadataAction();
-//        return metaData.generateMetadata().trim();
-        return metServ.getMetadata().trim();
+        GenerateMetadataAction metaData = new GenerateMetadataAction();
+        return metaData.generateMetadata().trim();
+//        return metServ.getMetadata().trim();
     }
 
     @RequestMapping(value = "/generateSAMLToken", method = {RequestMethod.GET})
@@ -89,9 +76,10 @@ public class RestControllers {
         try {
             ArrayList<String> pal = new ArrayList();
             pal.addAll(propServ.getEidasProperties());
-//            SpAuthenticationRequestData data
-//                    = SpEidasSamlTools.generateEIDASRequest(pal, citizenCountry, serviceProviderCountry);
-            return ResponseEntity.ok(encryptServ.getSAMLReq(pal, citizenCountry, serviceProviderCountry).getSaml());
+            SpAuthenticationRequestData data
+                    = SpEidasSamlTools.generateEIDASRequest(pal, citizenCountry, serviceProviderCountry);
+//            return ResponseEntity.ok(encryptServ.getSAMLReq(pal, citizenCountry, serviceProviderCountry).getSaml());
+            return ResponseEntity.ok(data.getSaml());
         } catch (NullPointerException e) {
             LOG.error("NulPointer Caught", e);
         }
@@ -107,7 +95,8 @@ public class RestControllers {
 
 //        LOG.info("DATA" + samlResponse);
 //        LOG.info("remoteAddress" + remoteAddress);
-        SpAuthenticationResponseData data = decryptServ.processResponse(samlResponse, remoteAddress);//SpEidasSamlTools.processResponse(samlResponse, remoteAddress);
+//        SpAuthenticationResponseData data = decryptServ.processResponse(samlResponse, remoteAddress);//SpEidasSamlTools.processResponse(samlResponse, remoteAddress);
+        SpAuthenticationResponseData data = SpEidasSamlTools.processResponse(samlResponse, remoteAddress);
 
         UUID token = UUID.randomUUID();
         LOG.info("token " + token);
@@ -135,7 +124,7 @@ public class RestControllers {
             ObjectMapper mapper = new ObjectMapper();
             LOG.info("FINAL DATA" + data.getResponseXML());
             try {
-                Map<String,String> jsonMap = eIDASResponseParser.parse(data.getResponseXML());
+                Map<String, String> jsonMap = eIDASResponseParser.parse(data.getResponseXML());
                 access_token = Jwts.builder()
                         .setSubject(mapper.writeValueAsString(jsonMap))
                         .signWith(SignatureAlgorithm.HS256, "secret".getBytes("UTF-8"))
