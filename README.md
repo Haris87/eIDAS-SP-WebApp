@@ -2,6 +2,15 @@
 
 ## Introduction
 
+This project was developed in the context of (and for the needs of) the Greek eIDAS Node.
+
+It is comprised of a Java WebApp that streamlines and greatly speeds up the integration of a Service Provider to the Greek eIDAS node, in such a way that no
+knowledge of the eIDAS SAML  profile is required. Additionally, it provides pre-built UI for guiding the users through eIDAS authentication flow. 
+
+It was developed by the "Information Management Lab (i4M Lab)", participant of the Atlantis Group (http://www.atlantis-group.gr/) of the University of the Aegean (https://www.aegean.gr/).
+
+## Project Purpose
+
 The eIDAS WebApp 2.0 facilitates the integration of a SP with the eIDAS node by:
 
 - Allowing the SP to avoid development time for processing SAML messages
@@ -16,7 +25,7 @@ Important Note: In order to use the WebApp 2.0 for integration with the eIDAS GR
 
 ## Deployment
 
-Internally the eIDAS WebApp 2.0 uses the eIDAS SAML library presented in seciton 2.1. Thus, the same steps presented in the deployment of the SAML library are required. These can be summed up to:
+Internally the eIDAS WebApp 2.0 uses the eIDAS SAML library presented https://github.com/ellak-monades-aristeias/eIDAS-SP-SAML-Tools-Library . Thus, the same steps presented in the deployment of the SAML library are required. These can be summed up to:
 
 - The copying of the configEidas folder
 
