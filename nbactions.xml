@@ -24,6 +24,9 @@
                 <Env.SP_METADATA_URL>http://138.68.103.237:8090/metadata</Env.SP_METADATA_URL>
                 <Env.SP_RETURN_URL>http://138.68.103.237:8090/eidasResponse</Env.SP_RETURN_URL>
                 <Env.SP_LOGO>img/app-logo.png</Env.SP_LOGO>
+                <Env.SP_CONFIG_REPOSITORY>/configEidas/</Env.SP_CONFIG_REPOSITORY>
+                <Env.SP_SECRET>secret</Env.SP_SECRET>
+                <Env.AUTH_DURATION>1800</Env.AUTH_DURATION>
             </properties>
         </action>
         <action>

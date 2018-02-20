@@ -5,12 +5,9 @@
  */
 package gr.uagean.loginWebApp.controllers;
 
-import eu.eidas.sp.SpAuthenticationRequestData;
 import eu.eidas.sp.SpEidasSamlTools;
 import gr.uagean.loginWebApp.service.CountryService;
 import gr.uagean.loginWebApp.service.EidasPropertiesService;
-import java.util.ArrayList;
-import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +30,8 @@ public class ViewControllers {
 
     final static Logger LOG = LoggerFactory.getLogger(ViewControllers.class);
 
-   
+    @Autowired
+    private EidasPropertiesService propServ;
 
     @Autowired
     private CountryService countryServ;
@@ -44,9 +42,13 @@ public class ViewControllers {
         ModelAndView mv = new ModelAndView("login");
         mv.addObject("nodeUrl", SpEidasSamlTools.getNodeUrl());
         mv.addObject("countries", countryServ.getEnabled());
-        mv.addObject("spFailPage",System.getenv(SP_FAIL_PAGE));
-        mv.addObject("spSuccessPage",System.getenv(SP_SUCCESS_PAGE));
-        mv.addObject("logo",SP_LOGO);
+        mv.addObject("spFailPage", System.getenv(SP_FAIL_PAGE));
+        mv.addObject("spSuccessPage", System.getenv(SP_SUCCESS_PAGE));
+        mv.addObject("logo", SP_LOGO);
+
+        mv.addObject("legal", propServ.getLegalProperties());
+        mv.addObject("natural", propServ.getNaturalProperties());
+
         return mv;
     }
 

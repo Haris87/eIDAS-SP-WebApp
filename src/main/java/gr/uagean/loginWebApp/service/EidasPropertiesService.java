@@ -5,7 +5,6 @@
  */
 package gr.uagean.loginWebApp.service;
 
-
 import java.util.List;
 
 /**
@@ -13,6 +12,10 @@ import java.util.List;
  * @author nikos
  */
 public interface EidasPropertiesService {
-    
+
     public List<String> getEidasProperties() throws NullPointerException;
+
+    public List<String> getNaturalProperties() throws NullPointerException;
+
+    public List<String> getLegalProperties() throws NullPointerException;
 }

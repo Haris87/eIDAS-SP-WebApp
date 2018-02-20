@@ -1,14 +1,14 @@
 
 
 .headerContainer{
-    background: url(../img/header.jpg);
+    background: url(../img/header2.jpg);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     margin-bottom: 25px;
 }
 
 #header-logo{
-    margin-left: 13em;
+    /*margin-left: 13em;*/
 }
 
 
@@ -32,13 +32,18 @@
 }
 
 .cancel-btn{
-    background-color: #BBEDC7;
-    color: #6BA883;
+    background-color: #c7d8ff;
+    color: white;
+}
+
+
+.swell-btn:hover{
+    background-color:#049ede!important;
 }
 
 .next-btn{
-    background-color: #F5F271;
-    color: #138C77;
+    background-color: #0051ba;
+    color: white;
 }
 
 .body{
@@ -56,17 +61,43 @@
 }
 
 .sideBarClass{
-    margin-top: 13em;
+    /*margin-top: 13em;*/
 }
 @media only screen and (max-width: 1000px) {
     .sideBarClass{
         margin-top: 0;
+        margin-left: 1rem;
     }
+
+    #companyLogo{
+        padding-left: 22%!important;
+    }
+
+    #uAegeanLogo{
+        max-height: 55px!important;
+    }
+    #border{
+        width: 100%!important;
+        margin-left:0!important;
+    }
+
+    .footer-container{
+        margin-left: 0!important;
+    }
+
+    .footerCol{
+        padding-left:0.5!important;
+    }
+
+    #flags{
+        padding-left: 4%;
+    }
+
 }
 
 
 #eIDASbtn{
-    background: url(../img/eidas_logo.jpg);
+    background: url(../img/eidas_logo2.jpg);
     background-size: cover;
     background-repeat: no-repeat;
     width: 56px;
@@ -80,9 +111,44 @@
     width: 100%;
     height: 10em;
 }
-
+/*
 #element-container{
     width: 100%;
     height: 10em;
     padding: 0px 5em 0 9em;
+}*/
+
+.select-wrapper+label{
+    font-size: 1.1rem!important;
+
+}
+
+.input-field.inline input, .input-field.inline .select-dropdown {
+    margin-bottom: 0.2rem!important;
+}
+
+.select-wrapper input.select-dropdown{
+    margin: 0px 0 0px 0!important;
+}
+
+
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+main{
+    flex: 1 0 auto;
+}
+
+.breadCrumbs{
+    color: #446eff!important;
+}
+
+.progress{
+    background-color: #049ede!important;
+}
+
+.progress .indeterminate {
+    background-color: #aed6e6!important;
 }

@@ -51,15 +51,16 @@ public class RestControllers {
     private EidasPropertiesService propServ;
     @Autowired
     private CacheManager cacheManager;
-    @Autowired
-    private NetworkService netServ;
+//    @Autowired
+//    private NetworkService netServ;
 
     private final static Logger LOG = LoggerFactory.getLogger(RestControllers.class);
 
-    private final static String SP_BACKEND = System.getenv("SP_BACKEND");
+//    private final static String SP_BACKEND = System.getenv("SP_BACKEND");
     private final static String SP_COUNTRY = System.getenv("SP_COUNTRY");
     private final static String SP_SUCCESS_PAGE = System.getenv("SP_SUCCESS_PAGE");
     private final static String SP_FAIL_PAGE = System.getenv("SP_FAIL_PAGE");
+    private final static String SECRET = System.getenv("SP_SECRET");
 
     @RequestMapping(value = "/metadata", method = {RequestMethod.POST, RequestMethod.GET}, produces = {"application/xml"})
     public @ResponseBody
@@ -119,37 +120,26 @@ public class RestControllers {
         urlParameters.add(new NameValuePair("eidasResponse", data.getResponseXML()));
         urlParameters.add(new NameValuePair("token", token.toString()));
 
+        String access_token;//            return "redirect:" + SP_FAIL_PAGE;
+        ObjectMapper mapper = new ObjectMapper();
+        LOG.info("FINAL DATA" + data.getResponseXML());
         try {
-            String access_token;
-            ObjectMapper mapper = new ObjectMapper();
-            LOG.info("FINAL DATA" + data.getResponseXML());
-            try {
-                Map<String, String> jsonMap = eIDASResponseParser.parse(data.getResponseXML());
-                access_token = Jwts.builder()
-                        .setSubject(mapper.writeValueAsString(jsonMap))
-                        .signWith(SignatureAlgorithm.HS256, "secret".getBytes("UTF-8"))
-                        .compact();
-                Cookie cookie = new Cookie("access_token", access_token);
-                cookie.setPath("/");
-                cookie.setMaxAge(30 * 60);
-                response.addCookie(cookie);
-
-            } catch (Exception e) {
-                LOG.info(e.getMessage());
-
-            }
-
-            if (netServ.sendPostReqWithData(SP_BACKEND, urlParameters)) {
-                return "redirect:" + SP_SUCCESS_PAGE + "?token=" + token;
-            } else {
-                return "redirect:" + SP_FAIL_PAGE + "?token=" + token;
-            }
-
-        } catch (IOException ex) {
-            LOG.error(ex.toString());
-//            return "redirect:" + SP_FAIL_PAGE;
-            return "redirect:" + SP_SUCCESS_PAGE + "?token=" + token;
+            Map<String, String> jsonMap = eIDASResponseParser.parse(data.getResponseXML());
+            access_token = Jwts.builder()
+                    .setSubject(mapper.writeValueAsString(jsonMap))
+                    .signWith(SignatureAlgorithm.HS256, SECRET.getBytes("UTF-8"))
+                    .compact();
+            Cookie cookie = new Cookie("access_token", access_token);
+            cookie.setPath("/");
+            int maxAge = Integer.parseInt(System.getenv("AUTH_DURATION"));
+            cookie.setMaxAge(maxAge);
+            response.addCookie(cookie);
+            
+        } catch (Exception e) {
+            LOG.info(e.getMessage());
+            
         }
+        return "redirect:" + SP_SUCCESS_PAGE ;//+ "?token=" + token;
 
     }
 

@@ -20,7 +20,6 @@ public class EidasPropertiesServiceImpl implements EidasPropertiesService {
 
     private final static String propertiesEnvVar = "EIDAS_PROPERTIES";
 
-    
     @Override
     public List<String> getEidasProperties() throws NullPointerException {
         String properties = System.getenv().get(propertiesEnvVar);
@@ -42,6 +41,30 @@ public class EidasPropertiesServiceImpl implements EidasPropertiesService {
         } else {
             throw new NullPointerException("properties string was empty");
         }
+    }
+
+    @Override
+    public List<String> getNaturalProperties() throws NullPointerException {
+        return getEidasProperties().stream().filter(prop -> {
+            return prop.contains("naturalperson");
+        }).map(prop -> {
+            String[] segments = prop.split("/");
+            return segments[segments.length - 1];
+        }).map(prop -> {
+            return String.join(" ", prop.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])"));
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> getLegalProperties() throws NullPointerException {
+        return getEidasProperties().stream().filter(prop -> {
+            return prop.contains("legal");
+        }).map(prop -> {
+            String[] segments = prop.split("/");
+            return segments[segments.length - 1];
+        }).map(prop -> {
+            return String.join(" ", prop.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])"));
+        }).collect(Collectors.toList());
     }
 
 }
