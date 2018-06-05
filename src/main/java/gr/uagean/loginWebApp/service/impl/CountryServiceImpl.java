@@ -48,7 +48,7 @@ public class CountryServiceImpl implements CountryService {
                         new Country("portugal", "POR", true),
                         new Country("romania", "RO", true),
                         new Country("slovakia", "SL", true),
-                        new Country("spain", "SP", true),
+                        new Country("spain", "ES", true),
                         new Country("sweden", "SW", true),
                         new Country("test", "CA", true)
                 )

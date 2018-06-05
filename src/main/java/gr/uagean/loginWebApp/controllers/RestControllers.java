@@ -11,11 +11,13 @@ import eu.eidas.sp.SpAuthenticationResponseData;
 import eu.eidas.sp.SpEidasSamlTools;
 import eu.eidas.sp.metadata.GenerateMetadataAction;
 import gr.uagean.loginWebApp.service.EidasPropertiesService;
-import gr.uagean.loginWebApp.service.NetworkService;
+import gr.uagean.loginWebApp.service.KeyStoreService;
+import gr.uagean.loginWebApp.service.ParameterService;
+import gr.uagean.loginWebApp.utils.CookieUtils;
+import gr.uagean.loginWebApp.utils.JwtUtils;
 import gr.uagean.loginWebApp.utils.eIDASResponseParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,7 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpStatus;
@@ -38,6 +41,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  *
@@ -51,8 +55,18 @@ public class RestControllers {
     private EidasPropertiesService propServ;
     @Autowired
     private CacheManager cacheManager;
-//    @Autowired
-//    private NetworkService netServ;
+
+    @Autowired
+    private ParameterService paramServ;
+    @Autowired
+    private KeyStoreService keyServ;
+
+    @Value("${eidas.error.consent}")
+    private String EIDAS_CONSENT_ERROR;
+    @Value("${eidas.error.qaa}")
+    private String EIDAS_QAA_ERROR;
+    @Value("${eidas.error.missing}")
+    private String EIDAS_MISSING_ATTRIBUTE_ERROR;
 
     private final static Logger LOG = LoggerFactory.getLogger(RestControllers.class);
 
@@ -61,6 +75,15 @@ public class RestControllers {
     private final static String SP_SUCCESS_PAGE = System.getenv("SP_SUCCESS_PAGE");
     private final static String SP_FAIL_PAGE = System.getenv("SP_FAIL_PAGE");
     private final static String SECRET = System.getenv("SP_SECRET");
+
+    final static String UAEGEAN_LOGIN = "UAEGEAN_LOGIN";
+    final static String LINKED_IN_SECRET = "LINKED_IN_SECRET";
+//    final static String SECRET = "SP_SECRET";
+
+    final static String CLIENT_ID = "CLIENT_ID";
+    final static String REDIRECT_URI = "REDIRECT_URI";
+    final static String HTTP_HEADER = "HTTP_HEADER";
+    final static String URL_ENCODED = "URL_ENCODED";
 
     @RequestMapping(value = "/metadata", method = {RequestMethod.POST, RequestMethod.GET}, produces = {"application/xml"})
     public @ResponseBody
@@ -89,7 +112,7 @@ public class RestControllers {
 
     @RequestMapping(value = "/eidasResponse", method = {RequestMethod.POST, RequestMethod.GET})
     public String eidasResponse(@RequestParam(value = "SAMLResponse", required = false) String samlResponse,
-            HttpServletResponse response) {
+            HttpServletResponse response, RedirectAttributes redirectAttrs) {
 
         String remoteAddress = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
                 .getRequest().getRemoteAddr();
@@ -123,23 +146,60 @@ public class RestControllers {
         String access_token;//            return "redirect:" + SP_FAIL_PAGE;
         ObjectMapper mapper = new ObjectMapper();
         LOG.info("FINAL DATA" + data.getResponseXML());
+        if (data.getResponseXML().contains("202007") || data.getResponseXML().contains("202004")
+                || data.getResponseXML().contains("202012") || data.getResponseXML().contains("202010")
+                || data.getResponseXML().contains("003002")) {
+            //"title", "Registration/Login Cancelled"
+            if (data.getResponseXML().contains("202007") || data.getResponseXML().contains("202012")) {
+                redirectAttrs.addFlashAttribute("title", "Registration/Login Cancelled");
+                redirectAttrs.addFlashAttribute("errorMsg", EIDAS_CONSENT_ERROR);
+            }
+            if (data.getResponseXML().contains("202004")) {
+                redirectAttrs.addFlashAttribute("title", "Registration/Login Cancelled");
+                redirectAttrs.addFlashAttribute("errorMsg", EIDAS_QAA_ERROR);
+            }
+            if (data.getResponseXML().contains("202010")) {
+                redirectAttrs.addFlashAttribute("title", "Registration/Login Cancelled");
+                redirectAttrs.addFlashAttribute("errorMsg", EIDAS_MISSING_ATTRIBUTE_ERROR);
+            }
+
+            //003002
+            if (data.getResponseXML().contains("003002")) {
+                redirectAttrs.addFlashAttribute("title", "Non-sucessful authentication");
+                redirectAttrs.addFlashAttribute("errorMsg", "Please, return to the home page and re-initialize the process. If the authentication fails again, please contact your national eID provider");
+            }
+
+            return "redirect:/authfail";
+        }
+
         try {
             Map<String, String> jsonMap = eIDASResponseParser.parse(data.getResponseXML());
-            access_token = Jwts.builder()
-                    .setSubject(mapper.writeValueAsString(jsonMap))
-                    .signWith(SignatureAlgorithm.HS256, SECRET.getBytes("UTF-8"))
-                    .compact();
-            Cookie cookie = new Cookie("access_token", access_token);
-            cookie.setPath("/");
-            int maxAge = Integer.parseInt(System.getenv("AUTH_DURATION"));
-            cookie.setMaxAge(maxAge);
-            response.addCookie(cookie);
-            
+//            access_token = Jwts.builder()
+//                    .setSubject(mapper.writeValueAsString(jsonMap))
+//                    .signWith(SignatureAlgorithm.HS256, SECRET.getBytes("UTF-8"))
+//                    .compact();
+            String origin = jsonMap.get("eid").contains("aegean") ? "UAegean" : "eIDAS";
+            access_token = JwtUtils.getJWT(jsonMap, paramServ, keyServ, origin);
+            if (paramServ.getParam(HTTP_HEADER) != null && Boolean.parseBoolean(paramServ.getParam(HTTP_HEADER))) {
+                response.setHeader("Authorization", access_token);
+            } else {
+
+                if (paramServ.getParam(URL_ENCODED) != null && Boolean.parseBoolean(paramServ.getParam(URL_ENCODED))) {
+                    return "redirect:" + paramServ.getParam(SP_SUCCESS_PAGE) + "?login=" + access_token;
+                } else {
+                    Cookie cookie = new Cookie("access_token", access_token);
+                    cookie.setPath("/");
+                    CookieUtils.addDurationIfNotNull(cookie, paramServ);
+                    response.addCookie(cookie);
+                }
+            }
+            return "redirect:" + paramServ.getParam(SP_SUCCESS_PAGE);
+
         } catch (Exception e) {
             LOG.info(e.getMessage());
-            
+            return "redirect:" + SP_FAIL_PAGE;
         }
-        return "redirect:" + SP_SUCCESS_PAGE ;//+ "?token=" + token;
+//        return "redirect:" + SP_SUCCESS_PAGE;//+ "?token=" + token;
 
     }
 

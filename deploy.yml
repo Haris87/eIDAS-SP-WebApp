@@ -1,0 +1,34 @@
+version: '2'
+services:
+    loginWebApp:
+        container_name: loginWebApp
+        image: endimion13/eidas-gr-loginwebapp:2
+        expose:
+            - 8090
+        ports:
+            - 8090:8090
+        environment:
+            - EIDAS_PROPERTIES=CurrentFamilyName,CurrentGivenName,DateOfBirth,PersonIdentifier
+            - SP_FAIL_PAGE=http://212.205.82.117:9095/error
+            - SP_SUCCESS_PAGE=http://zipcodes.gr/plugins/authentication/eid/login.php
+            - SP_LOGO=http://www.elta.gr/Portals/0/elta.jpg
+            - ISS_URL=http://212.205.82.117:8080/ISS2/ValidateToken
+            - SP_ID=sp3
+            #       - SP_SECRET=secret
+            #       - AUTH_DURATION=3800
+            - CLIENT_ID=862q17aahz1z6l
+            - LINKED_IN_SECRET=lio9xsPHhLAU3IkC
+            - REDIRECT_URI=http://212.205.82.117:9093/linkedInResponse
+            #       - UAEGEAN_LOGIN=true
+            - LINKED_IN=true
+            - HTTP_HEADER=false
+            - ASYNC_SIGNATURE=true
+            - SP_JWT_CERT=/certificates/keystore.jks 
+            - STORE_PASS=keystorepass
+            - KEY_PASS=selfsignedpass
+            - CERT_ALIAS=selfsigned
+            - URL_ENCODED=true
+        volumes:
+            - /configEidas:/configEidas
+            - /webappConfig:/webappConfig
+            - /zipcodesCertificates:/certificates

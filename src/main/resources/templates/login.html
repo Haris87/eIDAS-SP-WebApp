@@ -13,6 +13,12 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css"></link>
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"></link>
         <link rel="stylesheet" href="css/main.css"></link>
+        <link rel="icon"
+              type="image/x-icon"
+              href="favicon.ico"></link>
+        <link rel="icon"
+              type="image/x-icon"
+              href="favicon.ico"></link>
         <!-- Overide the sidebar css -->
         <style>
             .sideBarClass{
@@ -35,94 +41,162 @@
 
             <div class="row  mainContent">
 
-                <div class="col s12 m12 l8">
-                    <div class="container">
+                <div class="col s12 m12 l10">
 
+                    <div class="container" style="width: 90%;">
 
                         <div class="row breadCrumbs">
-                            <div class="col s12">
-                                STEP | <b>GO</b>
+                            <div class="col s12" style="font-size: larger;">
+                                STEP | <b>GO!</b>
                             </div>
+
                         </div>
 
                         <div class="row instructions">
                             <div  class="col s12 flow-text hide-on-large-only">
-                                <p>By clicking next you will be transfered to the, eIDAS  system to securely authenticate with this application.</p>
                                 <p>
-                                    Please recall, that using the eIDAS system you trustly provide us your identity attributes such as name, address,
-                                    etc. </p>
-                                <p>eIDAS will provide us with those attributes from the attribute providers you suggest. </p>
-                                <p>eIDAS will request your consent before sending us any information. </p>
-
-                                After authorization you will be redirected to our service.
-
-                                <p>To review the identification attributes that will be requested by eID_EU click 
-                                    <a  href="#modal1">HERE</a>
+                                    <b>Identify with eIDAS eID:</b> You will now be directed to the eIDAS Network to securely identify and trustly 
+                                    provide us your main identity attributes. Review the identification attributes that will be requested  <a href="#modal1">HERE</a>
                                 </p>
+                                <p>
+                                    The eIDAS Network will provide us with those attributes from the attribute provider you will suggest (eID-EU)
+
+                                    The eIDAS Network will request your consent before sending us any information 
+                                    After successful authentication you will be redirected to our service
+                                </p>
+
+
+                                <div class="row">
+
+                                    <div class="input-field col s12">
+                                        <select id="countrySelection" class="icons">
+                                            <th:block th:each="country : ${countries}">
+                                                <div th:switch="${country.code}"> 
+                                                    <option th:case="GR" selected="true" th:value="${country.code}" th:attr="data-icon= 'img/flags/' + ${country.name} + '_flag.gif'" th:text="${#strings.toUpperCase(country.name)}"></option>
+                                                    <option th:case="*"  th:value="${country.code}" th:attr="data-icon= 'img/flags/' + ${country.name} + '_flag.gif'" th:text="${#strings.toUpperCase(country.name)}"></option>
+                                                </div>
+
+                                            </th:block>
+
+                                        </select>
+                                        <label>Select Your Country of Origin</label>
+                                    </div>
+
+                                    <div class="input-field col s12" style="display:none">
+                                        <select id="typeOfLogin" class="icons" >
+                                            <option value="eIDAS"  >eIDAS</option>
+                                            <option value="peps" selected="true">PEPS</option>    
+                                        </select>
+                                        <label>Select means of identification </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+
+                                    <div class="col s12 m12 l6">
+                                        <a class="waves-effect waves-light btn-large swell-btn cancel-btn" onclick="onCancelClick()">Cancel</a>
+                                    </div>
+                                    <div class="col s12 m12 l6">
+                                        <a id="next" class="waves-effect waves-light btn-large swell-btn next-btn" onclick="onNextClick()">Next</a>
+                                    </div>
+                                </div>
+
+
+                                <p th:if="${linkedIn}"> 
+                                    <!--<span style="color:#446eff;font-weight: bold;"></span>-->
+                                    <b>Identify with LinkedIn:</b> 
+                                    <img  onclick="linkedInClick()" 
+                                          src='img/linkedIn.png'
+                                          style="
+                                          cursor: pointer;
+                                          width: 14rem;
+                                          margin-left: 1rem;
+                                          vertical-align: bottom;"/>
+
+                                </p>
+
+
+                                <p th:if="${uAegeanLogin}"> 
+                                    <span style="color:#446eff;font-weight: bold;">Identify with UAegean credentials </span> students | faculty | staff:  
+                                    <a  style="cursor: pointer;margin-left:1rem" onclick="onNextClickUAegean()">Sign in with UAegean Attribute Provider</a>
+                                </p>    
+
+
                             </div>
                             <div  class="col s12  hide-on-med-and-down ">
-                                <p>By clicking next you will be transfered to the, eIDAS  system to securely authenticate with this application. </p>
                                 <p>
-                                    Please recall, that using the eIDAS system you trustly provide us your identity attributes such as name, address,
-                                    etc. </p>
-                                <p>eIDAS will provide us with those attributes from the attribute providers you suggest. </p>
-                                <p>eIDAS will request your consent before sending us any information. </p>
-
-                                After authorization you will be redirected to our service.
-                                <p>To review the identification attributes that will be requested by eID_EU click 
-                                    <a  href="#modal1">HERE</a>
+                                    <b>Identify with eIDAS eID:</b> You will now be directed to the eIDAS Network to securely identify and trustly 
+                                    provide us your main identity attributes. Review the identification attributes that will be requested  <a href="#modal1">HERE</a>
                                 </p>
+                                <p>
+                                    The eIDAS Network will provide us with those attributes from the attribute provider you will suggest (eID-EU)
+
+                                    The eIDAS Network will request your consent before sending us any information
+                                    After successful authentication you will be redirected to our service
+                                </p>
+
+
+                                <div class="row">
+
+                                    <div class="input-field col s12">
+                                        <select id="countrySelection2" class="icons">
+                                            <th:block th:each="country : ${countries}">
+                                                <div th:switch="${country.code}"> 
+                                                    <option th:case="GR" selected="true" th:value="${country.code}" th:attr="data-icon= 'img/flags/' + ${country.name} + '_flag.gif'" th:text="${#strings.toUpperCase(country.name)}"></option>
+                                                    <option th:case="*"  th:value="${country.code}" th:attr="data-icon= 'img/flags/' + ${country.name} + '_flag.gif'" th:text="${#strings.toUpperCase(country.name)}"></option>
+                                                </div>
+
+                                            </th:block>
+
+                                        </select>
+                                        <label>Select Your Country of Origin</label>
+                                    </div>
+
+                                    <div class="input-field col s12" style="display:none">
+                                        <select id="typeOfLogin" class="icons" >
+                                            <option value="eIDAS"  >eIDAS</option>
+                                            <option value="peps" selected="true">PEPS</option>    
+                                        </select>
+                                        <label>Select means of identification </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+
+                                    <div class="col s12 m12 l6">
+                                        <a class="waves-effect waves-light btn-large swell-btn cancel-btn" onclick="onCancelClick()">Cancel</a>
+                                    </div>
+                                    <div class="col s12 m12 l6">
+                                        <a id="next" class="waves-effect waves-light btn-large swell-btn next-btn" onclick="onNextClick()">Next</a>
+                                    </div>
+                                </div>
+
+
+                                <p th:if="${linkedIn}"> 
+                                    <!--<span style="color:#446eff;font-weight: bold;"></span>-->
+                                    <b>Identify with LinkedIn:</b>  
+                                    <img  onclick="linkedInClick()" 
+                                          src='img/linkedIn.png'
+                                          style="
+                                          cursor: pointer;
+                                          width: 14rem;
+                                          margin-left: 1rem;
+                                          vertical-align: bottom;"/>
+
+                                </p>
+
+                                <p th:if="${uAegeanLogin}"> 
+                                    <span style="color:#446eff;font-weight: bold;">Identify with UAegean credentials </span> students | faculty | staff:  
+                                    <a  style="cursor: pointer;margin-left:1rem" onclick="onNextClickUAegean()">Sign in with UAegean Attribute Provider</a>
+                                </p>    
                             </div>
                         </div>
-
-                        <div class="row">
-
-                            <div class="input-field col s12">
-                                <select id="countrySelection" class="icons">
-                                    <th:block th:each="country : ${countries}">
-                                        <div th:switch="${country.code}"> 
-                                            <option th:case="GR" selected="true" th:value="${country.code}" th:attr="data-icon= 'img/flags/' + ${country.name} + '_flag.gif'" th:text="${#strings.toUpperCase(country.name)}"></option>
-                                            <option th:case="*"  th:value="${country.code}" th:attr="data-icon= 'img/flags/' + ${country.name} + '_flag.gif'" th:text="${#strings.toUpperCase(country.name)}"></option>
-                                        </div>
-
-                                    </th:block>
-
-                                </select>
-                                <label>Select Your Country of Origin</label>
-                            </div>
-
-                            <div class="input-field col s12" style="display:none">
-                                <select id="typeOfLogin" class="icons" >
-                                    <option value="eIDAS"  >eIDAS</option>
-                                    <option value="peps" selected="true">PEPS</option>    
-                                </select>
-                                <label>Select means of identification </label>
-                            </div>
-                        </div>
-                        <div class="row">
-
-                            <div class="col s12 m12 l6">
-                                <a class="waves-effect waves-light btn-large swell-btn cancel-btn" onclick="onCancelClick()">Cancel</a>
-                            </div>
-                            <div class="col s12 m12 l6">
-                                <a id="next" class="waves-effect waves-light btn-large swell-btn next-btn" onclick="onNextClick()">Next</a>
-                            </div>
-                        </div>
-
-
                     </div>
                 </div>
 
 
-
-
                 <input id="eidasUrl" type="hidden" th:value="${nodeUrl}"/>
-                <div class="col s12 m12 l4">
+                <div class="col s12 m12 l2">
                     <div   th:replace="sidebar :: sidebar"></div>
                 </div>
-
-
-
 
             </div>
             <div th:replace="modalProperties :: modalProperties"></div>
@@ -130,43 +204,51 @@
 
         </div>
 
+
         <!--Import jQuery before materialize.js-->
         <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
         <!-- Compiled and minified JavaScript -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
         <script th:inline="javascript">
-                                    /*<![CDATA[*/
-                                    $(document).ready(function () {
-                                    $('select').material_select();
-                                    $('.modal').modal();
-                                    if (!$('#countrySelection').val()) {
-                                    $('#next').removeClass("waves-effect waves-light submit").addClass('disabled');
-                                    }
+                                        /*<![CDATA[*/
+                                        $(document).ready(function () {
+                                            $('select').material_select();
+                                            $('.modal').modal();
+                                            if (!$('#countrySelection').val()) {
+                                                $('#next').removeClass("waves-effect waves-light submit").addClass('disabled');
+                                            }
 
-                                    $('#countrySelection').change(function () {
-                                    if (this.vaue !== "") {
-                                    $('#next').removeClass("disabled").addClass('waves-effect waves-light submit');
-                                    } else {
-                                    $('#next').removeClass("waves-effect waves-light submit").addClass('disabled');
-                                    }
+                                            $('#countrySelection').change(function () {
+                                                if (this.vaue !== "") {
+                                                    $('#next').removeClass("disabled").addClass('waves-effect waves-light submit');
+                                                } else {
+                                                    $('#next').removeClass("waves-effect waves-light submit").addClass('disabled');
+                                                }
 
-                                    });
-                                    });
-                                    function onNextClick() {
-                                    let country = $("#countrySelection").val();
-                                    let location = [[${issUrl}]]
-                                            + "?t=" + [[${token}]]
-                                            + "&sp=" + [[${sp}]]
-                                            + "&cc=" + country
-                                            + "&saml=eIDAS";
-                                    window.location = location;
-                                    }
+                                            });
+                                        });
+                                        function onNextClick() {
+                                            let country = $("#countrySelection").val();
+                                            let url = "/generateSAMLToken?citizenCountry=" + country;
 
-                                    function onCancelClick() {
-                                    let failPage = [[${spFailPage}]];
-                                    window.location = failPage;
-                                    }
-                                    /*]]>*/
+                                            $.get(url, function (data, status) {
+                                                if (status == "success") {
+                                                    let form = $('<form></form>', {
+                                                        method: "post",
+                                                        action: $("#eidasUrl").val()
+                                                    });
+                                                    form.append('<input type="hidden" name="SAMLRequest" value=' + data + '></input>')
+                                                    form.append('<input type="hidden" name="country" value=' + country + '></input>');
+                                                    $('body').append(form);
+                                                    form.submit();
+                                                }
+                                            });
+                                        }
+
+                                        function onCancelClick() {
+                                            window.location = "/authfail?reason=disagree";
+                                        }
+                                        /*]]>*/
         </script>
     </body>
 </html>
