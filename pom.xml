@@ -8,7 +8,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>loginWebApp</name>
+    <name>loginWebAppStandalone</name>
     <description>eIDAS login web app</description>
 
     <parent>

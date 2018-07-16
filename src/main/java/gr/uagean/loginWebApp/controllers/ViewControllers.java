@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
+import org.thymeleaf.util.StringUtils;
 
 /**
  *
@@ -56,6 +57,7 @@ public class ViewControllers {
     final static String REDIRECT_URI = "REDIRECT_URI";
     final static String HTTP_HEADER = "HTTP_HEADER";
     final static String URL_ENCODED = "URL_ENCODED";
+    final static String URL_PREFIX = "URL_PREFIX";
 
     final static Logger LOG = LoggerFactory.getLogger(ViewControllers.class);
 
@@ -83,7 +85,8 @@ public class ViewControllers {
 
         mv.addObject("legal", propServ.getLegalProperties());
         mv.addObject("natural", propServ.getNaturalProperties());
-
+        String urlPrefix = StringUtils.isEmpty(paramServ.getParam(URL_PREFIX)) ? "" : paramServ.getParam(URL_PREFIX);
+        mv.addObject("urlPrefix", urlPrefix);
         return mv;
     }
 
@@ -101,6 +104,8 @@ public class ViewControllers {
             model.addAttribute("title", "");
             model.addAttribute("errorMsg", "Registration/Login Cancelled");
         }
+        String urlPrefix = StringUtils.isEmpty(paramServ.getParam(URL_PREFIX)) ? "" : paramServ.getParam(URL_PREFIX);
+        model.addAttribute("urlPrefix", urlPrefix);
 
         model.addAttribute("server", System.getenv("SP_SERVER"));
         return "authfail";

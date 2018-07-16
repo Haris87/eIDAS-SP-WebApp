@@ -70,15 +70,12 @@ public class RestControllers {
 
     private final static Logger LOG = LoggerFactory.getLogger(RestControllers.class);
 
-//    private final static String SP_BACKEND = System.getenv("SP_BACKEND");
-    private final static String SP_COUNTRY = System.getenv("SP_COUNTRY");
-    private final static String SP_SUCCESS_PAGE = System.getenv("SP_SUCCESS_PAGE");
-    private final static String SP_FAIL_PAGE = System.getenv("SP_FAIL_PAGE");
-    private final static String SECRET = System.getenv("SP_SECRET");
+    private final static String SP_COUNTRY = "SP_COUNTRY";
+    private final static String SP_SUCCESS_PAGE = "SP_SUCCESS_PAGE";
+    private final static String SP_FAIL_PAGE = "SP_FAIL_PAGE";
 
     final static String UAEGEAN_LOGIN = "UAEGEAN_LOGIN";
     final static String LINKED_IN_SECRET = "LINKED_IN_SECRET";
-//    final static String SECRET = "SP_SECRET";
 
     final static String CLIENT_ID = "CLIENT_ID";
     final static String REDIRECT_URI = "REDIRECT_URI";
@@ -96,7 +93,7 @@ public class RestControllers {
     @RequestMapping(value = "/generateSAMLToken", method = {RequestMethod.GET})
     public ResponseEntity getSAMLToken(@RequestParam(value = "citizenCountry", required = true) String citizenCountry) {
 
-        String serviceProviderCountry = SP_COUNTRY;
+        String serviceProviderCountry = paramServ.getParam(SP_COUNTRY);
         try {
             ArrayList<String> pal = new ArrayList();
             pal.addAll(propServ.getEidasProperties());
@@ -197,7 +194,7 @@ public class RestControllers {
 
         } catch (Exception e) {
             LOG.info(e.getMessage());
-            return "redirect:" + SP_FAIL_PAGE;
+            return "redirect:" + paramServ.getParam(SP_FAIL_PAGE);
         }
 //        return "redirect:" + SP_SUCCESS_PAGE;//+ "?token=" + token;
 
