@@ -8,11 +8,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
         <meta name="description" content=""></meta>
         <meta name="author" content=""></meta>
-        <title>Authentication Failure</title>
+        <title>Create a new account</title>
         <!-- Compiled and minified CSS -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css"></link>
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"></link>
-        <link rel="stylesheet" href="css/main.css"></link>
+        <link rel="stylesheet" th:href="${urlPrefix + '/css/main.css'}"></link>
         <link rel="icon"
               type="image/x-icon"
               href="favicon.ico"></link>
@@ -41,8 +41,12 @@
 
             <div class="row  mainContent">
 
-                <div class="col s12 m12 l8">
-                    <div class="container" style="width:90%">
+                <div class="col s12 m12 l10">
+
+                    <div class="container" style="width: 90%;">
+
+
+
                         <div class="row instructions">
                             <div class="col s12 flow-text hide-on-large-only">
                                 <h5 th:text="${title}">title</h5>
@@ -53,6 +57,7 @@
                                 <p th:text="${errorMsg}">error message</p>
                             </div>
                         </div>
+
                         <div class="row">
                             <div class="col s12 m12 l6 " style="margin-top: 1rem;">
                                 <a class="waves-effect waves-light btn swell-btn next-btn" onclick="onHomeClick()">Home</a>
@@ -61,18 +66,16 @@
                     </div>
                 </div>
 
-                <div class="col s12 m12 l4">
+
+
+                <input id="eidasUrl" type="hidden" th:value="${nodeUrl}"/>
+                <div class="col s12 m12 l2">
                     <div   th:replace="sidebar :: sidebar"></div>
                 </div>
-
-
-
-
             </div>
             <div class="row" th:replace="footer :: footer"></div>
 
         </div>
-
         <!--Import jQuery before materialize.js-->
         <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
         <!-- Compiled and minified JavaScript -->
@@ -113,10 +116,10 @@
                                     let location = "http://eidasiss.aegean.gr:8081/ISS2/ldap.jsp?t=${token}" + "&sp=${sp}";
                                     window.location = location;
                                     }
-                                     function onHomeClick() {
-                                        window.location = [[${server}]]; 
+                                    function onHomeClick() {
+                                    window.location = [[${server}]];
                                     }
-                                    
+
 
                                     /*]]>*/
         </script>
